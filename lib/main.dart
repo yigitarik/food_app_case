@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:food_mood/controllers/category_controller.dart';
 import 'package:food_mood/core/constants/colors.dart';
 import 'package:food_mood/core/extensions/context_extensions.dart';
 import 'package:food_mood/core/services/shared_preferences_services.dart';
 import 'package:food_mood/views/home_view.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 final SharedPreferencesService preferencesService = SharedPreferencesService();
 void main() async {
@@ -18,16 +19,21 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Food Mood',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => CategoryController())
+      ],
+      child: MaterialApp(
+        title: 'Food Mood',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
+          useMaterial3: true,
+        ),
+        home: preferencesService.containsKeyCheck(key: 'firstLogin')
+            ? const HomeView()
+            : const MyHomePage(),
       ),
-      home: preferencesService.containsKeyCheck(key: 'firstLogin')
-          ? const HomeView()
-          : const MyHomePage(),
     );
   }
 }
