@@ -3,6 +3,7 @@ import 'package:food_mood/controllers/category_controller.dart';
 import 'package:food_mood/core/constants/colors.dart';
 import 'package:food_mood/core/extensions/context_extensions.dart';
 import 'package:food_mood/core/services/shared_preferences_services.dart';
+import 'package:food_mood/views/bottom_navbar.dart';
 import 'package:food_mood/views/home_view.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         home: preferencesService.containsKeyCheck(key: 'firstLogin')
-            ? const HomeView()
+            ? const GlobalBottomBar()
             : const MyHomePage(),
       ),
     );

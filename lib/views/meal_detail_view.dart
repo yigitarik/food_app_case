@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -6,10 +7,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:food_mood/controllers/category_controller.dart';
 import 'package:food_mood/core/constants/colors.dart';
 import 'package:food_mood/core/extensions/context_extensions.dart';
+import 'package:food_mood/main.dart';
+import 'package:food_mood/models/foodModels/meal_list_model.dart';
 import 'package:food_mood/models/foodModels/meal_model.dart';
+import 'package:food_mood/views/my_cart_view.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+// ignore: must_be_immutable
 class MealDetailView extends StatefulWidget {
   Meals? meal;
   MealDetailView({super.key, this.meal});
@@ -19,6 +24,7 @@ class MealDetailView extends StatefulWidget {
 }
 
 class _MealDetailViewState extends State<MealDetailView> {
+  MealListModel mealListModel = MealListModel(meals: []);
   @override
   void initState() {
     // TODO: implement initState
@@ -26,6 +32,10 @@ class _MealDetailViewState extends State<MealDetailView> {
     context
         .read<CategoryController>()
         .getMealVideo(context: context, mealId: widget.meal!.idMeal!);
+    if (preferencesService.containsKeyCheck(key: 'favorites')) {
+      mealListModel = MealListModel.fromJson(
+          jsonDecode(preferencesService.getStringValue(key: 'favorites')));
+    }
   }
 
   @override
@@ -43,9 +53,32 @@ class _MealDetailViewState extends State<MealDetailView> {
         actions: [
           IconButton(
             onPressed: () {
-              // Navigator.of(context).pop();
+              setState(() {
+                if (preferencesService.containsKeyCheck(key: 'favorites')) {
+                  if (mealListModel.meals.any(
+                      (element) => element.idMeal == widget.meal!.idMeal)) {
+                    mealListModel.meals.removeWhere(
+                        (element) => element.idMeal == widget.meal!.idMeal);
+                  } else {
+                    mealListModel.meals.add(widget.meal!);
+                  }
+                } else {
+                  mealListModel.meals.add(widget.meal!);
+                  var jsonString = jsonEncode(mealListModel.toJson());
+                  preferencesService.setStringValue(
+                      key: 'favorites', value: jsonString);
+                }
+              });
             },
-            icon: const Icon(Icons.favorite_border),
+            icon: Icon(
+                mealListModel.meals
+                        .any((element) => element.idMeal == widget.meal!.idMeal)
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                color: mealListModel.meals
+                        .any((element) => element.idMeal == widget.meal!.idMeal)
+                    ? Colors.red
+                    : Colors.black),
           ),
           IconButton(
               onPressed: () {
@@ -127,20 +160,47 @@ class _MealDetailViewState extends State<MealDetailView> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        width: context.dynamicWidth(0.3),
-        height: context.dynamicHeight(0.07),
-        margin: EdgeInsets.symmetric(
-            vertical: context.dynamicWidth(0.04),
-            horizontal: context.dynamicWidth(0.15)),
-        decoration: BoxDecoration(
-            color: AppColors.primaryColor,
-            borderRadius: BorderRadius.circular(30)),
-        child: const Center(
-          child: Text(
-            'Add To Basket',
-            style: TextStyle(
-              color: Colors.white,
+      bottomNavigationBar: InkWell(
+        onTap: () {
+          //  setState(() {
+          //       if (preferencesService.containsKeyCheck(key: 'mycart')) {
+          //         if (mealListModel.meals.any(
+          //             (element) => element.idMeal == widget.meal!.idMeal)) {
+          //           mealListModel.meals.removeWhere(
+          //               (element) => element.idMeal == widget.meal!.idMeal);
+          //         } else {
+          //           mealListModel.meals.add(widget.meal!);
+          //         }
+          //       } else {
+          //         mealListModel.meals.add(widget.meal!);
+          //         var jsonString = jsonEncode(mealListModel.toJson());
+          //         preferencesService.setStringValue(
+          //             key: 'favorites', value: jsonString);
+          //       }
+          //     });
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MyCartView(
+                  meal: widget.meal,
+                ),
+              ));
+        },
+        child: Container(
+          width: context.dynamicWidth(0.3),
+          height: context.dynamicHeight(0.07),
+          margin: EdgeInsets.symmetric(
+              vertical: context.dynamicWidth(0.04),
+              horizontal: context.dynamicWidth(0.15)),
+          decoration: BoxDecoration(
+              color: AppColors.primaryColor,
+              borderRadius: BorderRadius.circular(30)),
+          child: const Center(
+            child: Text(
+              'Add To Basket',
+              style: TextStyle(
+                color: Colors.white,
+              ),
             ),
           ),
         ),

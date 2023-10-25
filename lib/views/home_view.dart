@@ -7,6 +7,7 @@ import 'package:food_mood/core/constants/colors.dart';
 import 'package:food_mood/core/extensions/context_extensions.dart';
 import 'package:food_mood/models/foodModels/meal_model.dart';
 import 'package:food_mood/views/meal_detail_view.dart';
+import 'package:food_mood/views/my_cart_view.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -39,7 +40,13 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
         ),
         actions: [
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MyCartView(),
+                    ));
+              },
               icon: const Icon(Icons.shopping_basket_outlined))
         ],
       ),
@@ -118,10 +125,10 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                                     childAspectRatio: 9 / 12,
                                     crossAxisCount: 2),
                             itemCount:
-                                categoryController.mealListModel.meals!.length,
+                                categoryController.mealListModel.meals.length,
                             itemBuilder: (context, index) {
-                              return categoryController.mealListModel.meals ==
-                                      null
+                              return categoryController
+                                      .mealListModel.meals.isEmpty
                                   ? SizedBox(
                                       width: 200.0,
                                       height: 100.0,
@@ -147,7 +154,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                                           )),
                                     )
                                   : _buildMealCard(categoryController
-                                      .mealListModel.meals![index]);
+                                      .mealListModel.meals[index]);
                             }),
                   ))),
     );
@@ -189,7 +196,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(50),
                 child: CachedNetworkImage(
-                  imageUrl: meal.strMealThumb!,
+                  imageUrl: meal.strMealThumb.toString(),
                 ),
               ),
             ),

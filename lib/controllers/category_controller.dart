@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:food_mood/core/constants/api_constants.dart';
 import 'package:food_mood/core/constants/api_headers.dart';
 import 'package:food_mood/core/services/api_get_service.dart';
-import 'package:food_mood/core/services/api_post_service.dart';
 import 'package:food_mood/models/categoryModels/category_list_model.dart';
 import 'package:food_mood/models/foodModels/meal_list_model.dart';
-import 'package:provider/provider.dart';
 
 class CategoryController with ChangeNotifier {
   CategoryListModel categoryListModel = CategoryListModel();
   TabController? tabController;
-  MealListModel mealListModel = MealListModel();
+  MealListModel mealListModel = MealListModel(meals: []);
 
   String? mealVideoLink;
 
@@ -46,7 +44,7 @@ class CategoryController with ChangeNotifier {
 // filter.php?c=
   getMealByCategory(
       {required BuildContext context, required String category}) async {
-    mealListModel = MealListModel();
+    mealListModel = MealListModel(meals: []);
     notifyListeners();
     ApiGetService apiGetService = ApiGetService(
         context: context,
